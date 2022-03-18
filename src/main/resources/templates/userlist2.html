@@ -1,0 +1,117 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+<script type="text/javascript" th:src="@{/js/user.js}"></script>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<style>
+.fieldError {
+	color: red
+}
+</style>
+<meta charset="UTF-8">
+<title>Pagination User</title>
+</head>
+<body>
+	<div class="container my-2">
+		<h1>Pagination List</h1>
+		<br/>
+		<input class="btn btn-warning" type="button" value="返回上一頁" onclick="history.back()"/>
+		<input class="btn btn-warning" type="button" value="返回查詢頁" onclick="backtoselect()"/>
+		<br/>
+		<br/>				
+		<table border="1" class="table table-striped table-responsive-md">
+			<thead>
+				<tr>
+					<th>索引</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=id&sortDir=' + ${reverseSortDir}}">序號</a>
+					</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=name&sortDir=' + ${reverseSortDir}}">姓名</a>
+					</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=password&sortDir=' + ${reverseSortDir}}">密碼</a>
+					</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=birth&sortDir=' + ${reverseSortDir}}">生日</a>
+					</th>
+					<th>
+						年齡
+					</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=height&sortDir=' + ${reverseSortDir}}">身高</a>
+					</th>
+					<th>
+						<a th:href="@{'/page/pagination/' + ${currentPage} + '?sortField=weight&sortDir=' + ${reverseSortDir}}">體重</a>
+					</th>
+					<th>
+						BMI(小數點2位)
+					</th>
+					<th>
+						結果判定
+					</th>
+					<th>編輯</th>
+					<th>刪除</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user, state:${listusers}">
+					<td th:text="${state.index}+1"></td>
+					<td th:text="${user.id}"></td>
+					<td th:text="${user.name}"></td>
+					<td th:text="${user.password}"></td>
+					<td th:text="${user.birth}"></td>
+
+					<td
+						th:text="${#dates.year(#dates.createNow())-#dates.year(user.birth)}"></td>
+					<td th:text="${user.height}"></td>
+					<td th:text="${user.weight}"></td>
+
+					<!-- #numbers.formatDecimal(值, 至少幾位整數位, 只少幾位小數位) 不足皆補0-->
+					<div th:with="bmiValue=${((user.weight)/((user.height/100.0)*(user.height/100.0)))}">
+					<td>[[${#numbers.formatDecimal(bmiValue, 1, 2)}]]</td>
+					<td th:if="0 <= ${bmiValue} and ${bmiValue} < 18.5">太瘦</td>
+					<td th:if="18.5 <= ${bmiValue} and ${bmiValue} < 24">正常</td>
+					<td th:if="24 <= ${bmiValue} and ${bmiValue} < 27">過重</td>
+					<td th:if="27 <= ${bmiValue} and ${bmiValue} < 35">過胖</td>
+					</div>
+					<td><a th:href="@{/user/{id}(id=${user.id})}"
+						class="btn btn-success">編輯</a></td>
+					<td><a th:href="@{/user/delete/{id}(id=${user.id})}"
+						class="btn btn-danger">刪除</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<div>&nbsp;</div>		
+		<div><i>Sorted by [[${sortField}]] in [[${sortDir}]] order</i></div>
+		<div>&nbsp;</div>
+		<div th:if="${totalPages > 1}">
+			Total Items: [[${totalItems}]]
+			&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;
+			
+			<a th:if="${currentPage > 1}" th:href="@{'/page/pagination/1' + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}">First</a>
+			<span th:unless="${currentPage > 1}">First</span>
+			&nbsp;&nbsp;
+			
+			<a th:if="${currentPage > 1}" th:href="@{'/page/pagination/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}">Previous</a>
+			<span th:unless="${currentPage > 1}">Previous</span>
+			
+			&nbsp;&nbsp;
+			
+			<span th:each="i: ${#numbers.sequence(1, totalPages)}">
+				<a th:if="${currentPage != i}" th:href="@{'/page/pagination/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}">[[${i}]]</a>
+				<span th:unless="${currentPage != i}">[[${i}]]</span>
+				&nbsp;
+			</span>
+			
+			<a th:if="${currentPage < totalPages}" th:href="@{'/page/pagination/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}">Next</a>
+			<span th:unless="${currentPage < totalPages}">Next</span>
+			&nbsp;&nbsp;
+			
+			<a th:if="${currentPage < totalPages}" th:href="@{'/page/pagination/' + ${totalPages} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}">Last</a>
+			<span th:unless="${currentPage < totalPages}">Last</span>
+		</div>
+</div>		
+</body>
+</html>
